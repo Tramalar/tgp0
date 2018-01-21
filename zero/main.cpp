@@ -18,7 +18,7 @@ vector<Vector3f> vecn;
 // This is the list of faces (indices into vecv and vecn)
 vector<unsigned int> vecfv;
 vector<unsigned int> vecfn;
-vector<float> vertdata;
+vector<float> vertdata(10000);
 
 
 // You will need more global variables to implement color and position changes
@@ -316,28 +316,24 @@ void loadInput()
 			}
 			for(int i=0;i<3;i++){
 			vecfv.push_back(v1[i]);
+			for(int j =0;j<3;j++){
+				vertdata[v1[i]*6+j]=vecv[v1[i]-1][j];
+			}
+			for(int j =0;j<3;j++){
+				vertdata[v1[i]*6+3+j]=vecn[v2[i]-1][j];
+			}
 			}
 		}
 	}
 	// load the OBJ file here
 }
-void formatData(){
-	for (int i =0; i< vecv.size();i++){
-		for(int j=0;j<3;j++){
-			vertdata.push_back(vecv[i][j]);
-		}
-		for(int j=0;j<3;j++){;
-			vertdata.push_back(vecn[i][j]);
-		}
-	}
-}
+
 
 // Main routine.
 // Set up OpenGL, define the callbacks and start the main loop
 int main( int argc, char** argv )
 {
     loadInput();
-	formatData();
 
     glutInit(&argc,argv);
 

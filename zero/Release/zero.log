@@ -1,4 +1,4 @@
-﻿Build started 21.1.2018 17:22:51.
+﻿Build started 21.1.2018 20:03:16.
      1>Project "C:\Users\Business Time\Documents\2.1.Kurssit\TGP\zero\zero.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\zero.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -16,7 +16,6 @@
      1>main.cpp(68): warning C4244: '+=' : conversion from 'double' to 'GLfloat', possible loss of data
      1>main.cpp(226): warning C4244: 'argument' : conversion from 'int' to 'GLfloat', possible loss of data
      1>main.cpp(227): warning C4244: 'argument' : conversion from 'int' to 'GLfloat', possible loss of data
-     1>main.cpp(325): warning C4018: '<' : signed/unsigned mismatch
          All outputs are up-to-date.
        ManifestResourceCompile:
          All outputs are up-to-date.
@@ -44,4 +43,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.00
+Time Elapsed 00:00:01.01
