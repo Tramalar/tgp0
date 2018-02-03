@@ -48,10 +48,8 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep )
 	CurvePoint cp_curr;
 	CurvePoint cp_next;
     // TODO: Here you should build the surface.  See surf.h for details.
-	for(int i=0;i<sweep.size()-1;i++){
-		for(int j =0;j < profile.size()-1;j++){
-
-
+    for(int j =0;j < profile.size()-1;j++){
+	    for(int i=0;i<sweep.size()-1;i++){
 			float dpX=Vector3f::dot(sweep[i].T,Vector3f(1,0,0));
 			float dpY=Vector3f::dot(sweep[i].T,Vector3f(0,1,0));
 			float dpZ=Vector3f::dot(sweep[i].T,Vector3f(0,0,1));
@@ -67,23 +65,18 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep )
 	        cp_next.N=(Matrix3f::rotateX(angleX))*(Matrix3f::rotateY(angleY))*(Matrix3f::rotateZ(angleZ))*profile[j+1].N;
 
 			surface.VV.push_back(sweep[i].V+cp_curr.V);
-			surface.VN.push_back(cp_curr.N);
+			surface.VN.push_back(-1*cp_curr.N);
 			surface.VV.push_back(sweep[i].V+cp_next.V);
-			surface.VN.push_back(cp_next.N);
+			surface.VN.push_back(-1*cp_next.N);
 			surface.VV.push_back(sweep[i+1].V+cp_curr.V);
-			surface.VN.push_back(cp_curr.N);
-
-			surface.VF.push_back(Tup3u(surface.VV.size()-3,surface.VV.size()-2,surface.VV.size()-1));
-			
-			surface.VV.push_back(sweep[i].V+cp_next.V);
-			surface.VN.push_back(cp_next.N);
+			surface.VN.push_back(-1*cp_curr.N);		
 			surface.VV.push_back(sweep[i+1].V+cp_next.V);
-			surface.VN.push_back(cp_next.N);
-			surface.VV.push_back(sweep[i+1].V+cp_curr.V);
-			surface.VN.push_back(cp_curr.N);
-
-			surface.VF.push_back(Tup3u(surface.VV.size()-3,surface.VV.size()-2,surface.VV.size()-1));
-		}
+			surface.VN.push_back(-1*cp_next.N);
+			}
+	}
+	for (int i =0;i<surface.VV.size()-3;i++){
+		surface.VF.push_back(Tup3u(i,i+1,i+2));
+		surface.VF.push_back(Tup3u(i+2,i+1,i+3));
 	}
 
     return surface;

@@ -136,13 +136,22 @@ Curve evalBspline( const vector< Vector3f >& P, unsigned steps )
 			newP.push_back(Vector3f(newcont[8],newcont[9],newcont[10]));
 			newP.push_back(Vector3f(newcont[12],newcont[13],newcont[14]));
 			controls=vector<Vector3f>();
+			controls.push_back(P[i-2]);
+			controls.push_back(P[i-1]);
+			controls.push_back(P[i]);
 		}
     }
 
     cerr << "\t>>> Steps (type steps): " << steps << endl;
-
-    // Return an empty curve right now.
-	Curve bez=evalBezier(newP,steps);
+	Curve bez;
+	for (int i=0;i<newP.size()-3;i=i+4){
+		vector<Vector3f> P4;
+		for (int j=0;j<4;j++)
+			P4.push_back(newP[i+j]);
+		Curve temp=evalBezier(P4,steps);
+		for (int k=0;k<temp.size();k++)
+			bez.push_back(temp[k]);
+	}
     return bez;
 }
 

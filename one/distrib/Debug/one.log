@@ -1,4 +1,4 @@
-﻿Build started 3.2.2018 9:24:53.
+﻿Build started 3.2.2018 11:50:09.
      1>Project "C:\Users\Business Time\Documents\2.1.Kurssit\TGP\one\distrib\one.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\one.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -17,4 +17,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.05
+Time Elapsed 00:00:00.06
