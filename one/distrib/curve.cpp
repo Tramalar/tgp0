@@ -28,9 +28,7 @@ Matrix4f BS=Matrix4f (1.0/6,-3.0/6, 3.0/6,-1.0/6,
 		              4.0/6, 0.0/6,-6.0/6, 3.0/6,
 		              1.0/6, 3.0/6, 3.0/6,-3.0/6,
 		              0.0/6, 0.0/6, 0.0/6, 1.0/6);
-Vector3f v4f_to_v3f(Vector4f point){
-	return Vector3f(point[0],point[1],point[2]);
-}
+
 Vector4f v3f_to_v4f(Vector3f point){
 	return Vector4f(point[0],point[1],point[2],0);
 }
@@ -73,27 +71,28 @@ Curve evalBezier( const vector< Vector3f >& P, unsigned steps )
     cerr << "\t>>> Control points (type vector< Vector3f >): "<< endl;
 	vector<Vector3f> controls=vector<Vector3f>();
 	Curve points=Curve();
+	CurvePoint cp;
+	cp.B=Vector3f(0,0,1);
     for( unsigned i = 0; i < P.size(); ++i )
     {
 		controls.push_back(P[i]);
 		if(controls.size()==4){
 			for(unsigned t=0;t<=steps;t++){
-				CurvePoint cp;
 				float p=(t+.0)/steps;
 
 				Vector4f T=Vector4f(1,p,pow(p,2),pow(p,3));
+				//kannan derivaatta
 				Vector4f T_d=Vector4f((-3)*pow(1-p,2),3*pow(1-p,2)-6*p*(1-p),6*p*(1-p)-3*pow(p,2),3*pow(p,2));
-
+				
 				Matrix4f G=flatten(controls);
 
-				cp.V=v4f_to_v3f(G*Bez*T);
+				cp.V=(G*Bez*T).xyz();
 
-				cp.T=v4f_to_v3f(G*T_d);
-				cp.T.normalize();
+				cp.T=(G*T_d).xyz().normalized();
 
-				cp.N=(Matrix3f::rotateZ(3.141592653589793238/2))*cp.T;
+				cp.N=Vector3f::cross(cp.B,cp.T);
 
-				cp.B=(Matrix3f::rotateX(3.141592653589793238/2))*cp.T;
+				cp.B=Vector3f::cross(cp.T,cp.N);
 
 				points.push_back(cp);
 			}
@@ -125,33 +124,31 @@ Curve evalBspline( const vector< Vector3f >& P, unsigned steps )
 
     cerr << "\t>>> Control points (type vector< Vector3f >): "<< endl;
 	vector<Vector3f> controls=vector<Vector3f>();
-	vector<Vector3f> newP=vector<Vector3f>();
+	Curve bez;
     for( unsigned i = 0; i < P.size(); ++i ){
 		controls.push_back(P[i]);
 		if(controls.size()==4){
+        	vector<Vector3f> newP=vector<Vector3f>();
 			Matrix4f G=flatten(controls);
 			Matrix4f newcont=(G*BS*Bez.inverse());
 			newP.push_back(Vector3f(newcont[0],newcont[1],newcont[2]));
 			newP.push_back(Vector3f(newcont[4],newcont[5],newcont[6]));
 			newP.push_back(Vector3f(newcont[8],newcont[9],newcont[10]));
 			newP.push_back(Vector3f(newcont[12],newcont[13],newcont[14]));
+
 			controls=vector<Vector3f>();
 			controls.push_back(P[i-2]);
 			controls.push_back(P[i-1]);
 			controls.push_back(P[i]);
+
+		    Curve temp=evalBezier(newP,steps);
+		    for (int k=0;k<temp.size();k++)
+			    bez.push_back(temp[k]);
 		}
     }
 
     cerr << "\t>>> Steps (type steps): " << steps << endl;
-	Curve bez;
-	for (int i=0;i<newP.size()-3;i=i+4){
-		vector<Vector3f> P4;
-		for (int j=0;j<4;j++)
-			P4.push_back(newP[i+j]);
-		Curve temp=evalBezier(P4,steps);
-		for (int k=0;k<temp.size();k++)
-			bez.push_back(temp[k]);
-	}
+
     return bez;
 }
 

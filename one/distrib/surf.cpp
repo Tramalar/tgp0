@@ -45,38 +45,30 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep )
         cerr << "genCyl profile curve must be flat on xy plane." << endl;
         exit(0);
     }
-	CurvePoint cp_curr;
-	CurvePoint cp_next;
-    // TODO: Here you should build the surface.  See surf.h for details.
-    for(int j =0;j < profile.size()-1;j++){
-	    for(int i=0;i<sweep.size()-1;i++){
-			float dpX=Vector3f::dot(sweep[i].T,Vector3f(1,0,0));
-			float dpY=Vector3f::dot(sweep[i].T,Vector3f(0,1,0));
-			float dpZ=Vector3f::dot(sweep[i].T,Vector3f(0,0,1));
-
-			float angleX=dpX<0?(acos(dpX)):acos(dpX)+3.141592653;
-			float angleY=dpX<0?(acos(dpY)):acos(dpY)+3.141592653;
-			float angleZ=dpX<0?(acos(dpZ)):acos(dpZ)+3.141592653;
-
-	        cp_curr.V=(Matrix3f::rotateX(angleX))*(Matrix3f::rotateY(angleY))*(Matrix3f::rotateZ(angleZ))*profile[j].V;
-	        cp_curr.N=(Matrix3f::rotateX(angleX))*(Matrix3f::rotateY(angleY))*(Matrix3f::rotateZ(angleZ))*profile[j].N;		
-
-	        cp_next.V=(Matrix3f::rotateX(angleX))*(Matrix3f::rotateY(angleY))*(Matrix3f::rotateZ(angleZ))*profile[j+1].V;
-	        cp_next.N=(Matrix3f::rotateX(angleX))*(Matrix3f::rotateY(angleY))*(Matrix3f::rotateZ(angleZ))*profile[j+1].N;
-
-			surface.VV.push_back(sweep[i].V+cp_curr.V);
-			surface.VN.push_back(-1*cp_curr.N);
-			surface.VV.push_back(sweep[i].V+cp_next.V);
-			surface.VN.push_back(-1*cp_next.N);
-			surface.VV.push_back(sweep[i+1].V+cp_curr.V);
-			surface.VN.push_back(-1*cp_curr.N);		
-			surface.VV.push_back(sweep[i+1].V+cp_next.V);
-			surface.VN.push_back(-1*cp_next.N);
+	//CurvePoint cp_curr;
+	//CurvePoint cp_next;
+    //// TODO: Here you should build the surface.  See surf.h for details.
+	for(int i=0;i<sweep.size();i++){	
+        for(int j =0;j < profile.size();j++){
+			Matrix4f M;
+            M.setCol( 0, Vector4f( sweep[i].N, 0 ) );
+            M.setCol( 1, Vector4f( sweep[i].B, 0 ) );
+            M.setCol( 2, Vector4f( sweep[i].T, 0 ) );
+            M.setCol( 3, Vector4f( sweep[i].V, 1 ) );
+	
+			Vector3f v1=(M*Vector4f(profile[j].V,1)).xyz();	
+			Matrix3f MIT=M.getSubmatrix3x3(0,0).inverse().transposed();
+	
+			Vector3f n1=-1*(MIT*profile[j].N);
+						 
+			surface.VV.push_back(v1);
+			surface.VN.push_back(n1);
 			}
+	
 	}
-	for (int i =0;i<surface.VV.size()-3;i++){
-		surface.VF.push_back(Tup3u(i,i+1,i+2));
-		surface.VF.push_back(Tup3u(i+2,i+1,i+3));
+	for (int i =0;i<surface.VV.size()-profile.size()-1;i++){
+		surface.VF.push_back(Tup3u(i+profile.size()+1,i+profile.size(),i+1));
+		surface.VF.push_back(Tup3u(i+1,i+profile.size(),i));
 	}
 
     return surface;
