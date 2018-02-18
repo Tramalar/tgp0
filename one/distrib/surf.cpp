@@ -5,7 +5,7 @@ using namespace std;
 namespace
 {
     
-    // We're only implenting swept surfaces where the profile curve is
+    // We're only implementing swept surfaces where the profile curve is
     // flat on the xy-plane.  This is a check function.
     static bool checkFlat(const Curve &profile)
     {
@@ -19,6 +19,10 @@ namespace
     }
 }
 
+bool vec_equals(Vector3f v1,Vector3f v2,float tol){
+	return (abs(v1.x()-v2.x())<tol&&abs(v1.y()-v2.y())<tol&&abs(v1.z()-v2.z())<tol);
+}
+
 Surface makeSurfRev(const Curve &profile, unsigned steps)
 {
     Surface surface;
@@ -29,20 +33,19 @@ Surface makeSurfRev(const Curve &profile, unsigned steps)
         exit(0);
     }
 	float angle=0;
-    for(int j =0;j<steps+1;j++){
+    for(int j =0;j<=steps;j++){
 	    for(int i =0;i<profile.size();i++){
 			Matrix3f rota=Matrix3f::rotateY(angle);
 			surface.VV.push_back(rota*profile[i].V);
 			surface.VN.push_back(-1*(rota.inverse().transposed()*profile[i].N));
 		}
-		angle+=2*3.141592653/steps;
+		angle+=2*M_PI/steps;
 	}
 	for (int i =0;i<surface.VV.size()-profile.size()-1;i++){
 		surface.VF.push_back(Tup3u(i,i+profile.size()+1,i+profile.size()));
 		surface.VF.push_back(Tup3u(i+1,i+profile.size()+1,i));
 	}
 
-    cerr << "\t>>> makeSurfRev called (but not implemented).\n\t>>> Returning empty surface." << endl;
  
     return surface;
 }
@@ -56,14 +59,15 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep )
         cerr << "genCyl profile curve must be flat on xy plane." << endl;
         exit(0);
     }
-	//CurvePoint cp_curr;
-	//CurvePoint cp_next;
-    //// TODO: Here you should build the surface.  See surf.h for details.
+	bool closed= vec_equals(sweep[0].V,sweep[sweep.size()-1].V,1e-5)&& vec_equals(sweep[0].T,sweep[sweep.size()-1].T,1e-5);
+	float incn=-acos(Vector3f::dot(sweep[0].N.normalized(),sweep[sweep.size()-1].N.normalized()))/(sweep.size()-1);
+	float rotn=0;
+
 	for(int i=0;i<sweep.size();i++){	
         for(int j =0;j < profile.size();j++){
 			Matrix4f M;
-            M.setCol( 0, Vector4f( sweep[i].N, 0 ) );
-            M.setCol( 1, Vector4f( sweep[i].B, 0 ) );
+			M.setCol( 0, Vector4f( (Matrix3f::rotation(sweep[i].T,rotn)*sweep[i].N).normalized(), 0 ) );
+			M.setCol( 1, Vector4f( (Matrix3f::rotation(sweep[i].T,rotn)*sweep[i].B).normalized(), 0 ) );
             M.setCol( 2, Vector4f( sweep[i].T, 0 ) );
             M.setCol( 3, Vector4f( sweep[i].V, 1 ) );
 	
@@ -75,7 +79,7 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep )
 			surface.VV.push_back(v1);
 			surface.VN.push_back(n1);
 			}
-	
+		if(closed){rotn+=incn;}
 	}
 	for (int i =0;i<surface.VV.size()-profile.size()-1;i++){
 		surface.VF.push_back(Tup3u(i+profile.size()+1,i+profile.size(),i+1));

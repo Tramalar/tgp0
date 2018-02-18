@@ -209,6 +209,20 @@ bool parseFile(istream &in,
             dims.push_back(2);
             if (named) curveIndex[objName] = dims.size()-1;
         }
+        else if (objType == "knot")
+        {
+            cerr << " reading knot " << "[" << objName << "]" << endl;
+
+            unsigned steps;
+            int p,q;
+			float rad;
+            in >> steps >> rad >> p >> q;
+
+            curves.push_back( evalKnot(steps,rad,p,q));
+            curveNames.push_back(objName);
+            dims.push_back(2);
+            if (named) curveIndex[objName] = dims.size()-1;
+        }
         else
         {
             cerr << "failed: type " << objType << " unrecognized." << endl;

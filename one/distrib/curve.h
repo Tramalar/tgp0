@@ -42,6 +42,8 @@ Curve evalBspline( const std::vector< Vector3f >& P, unsigned steps );
 Curve evalCircle( float radius, unsigned steps);
 
 
+Curve evalKnot( unsigned steps, float radius, int p , int q);
+
 // Draw the curve and (optionally) the associated coordinate frames
 // If framesize == 0, then no frames are drawn.  Otherwise, drawn.
 void drawCurve( const Curve& curve, float framesize = 0 );
